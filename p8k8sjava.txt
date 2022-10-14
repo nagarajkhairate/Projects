@@ -1,0 +1,46 @@
+------------K8S deploying JAVA project--------------
+run K8S master     and K8S worker node
+
+*)git clone https://github.com/kantharajj/docker-Java-kubernetes-project.git  (master node)
+*)ls ---- cd docker-java-kuberntes ---ls
+*)cd shopfront --- ls ---- 
+*)sudo apt install maven
+*)mvn --version
+*)export MAVEN_HOME=/usr/share/maven
+*)echo $MAVEN_HOME
+*)mvn clean install
+*)ls ---cd targrt ---cd .. ---vi Dockerfile
+*)sudo docker build -t nagarajkhairate .
+*)sudo docker images
+*)cd .. ---ls ---- cd productcatlog---ls
+*)mvn clean install
+*)cd targets ---ls --- check for  original-productcatalogue-0.0.1-SNAPSHOT.jar file ---cd ..
+*)sudo docker build -t nagarajkhairate/productcatalogue:latest .
+*)sudo docker images
+*)cd .. ----ls ---- cd stockmanager ---mvn clean install
+*)check for the .jar file in target folder and come back cd.. and run docker build -t nagarajkhairte/stockmaager .
+*)sudo docker build -t nagarajkhairate/stockmanager .
+*)sudo docker images
+*)sudo docker login
+*) username and passwd (login succsed)
+*)sudo docker push (imge name) all tree imges stockmanager shopfront productcatelogue.
+*)sudo docker push (image id shopfront)
+*)sudo docker rmi nagarajkhairate(shopfront) error so removed generate same image with tagg
+*)go to cd .. ls ---shopfront ---cd shopfrot
+*)sudo docker -t nagarajkhairate/shopfront11:latest .
+*)sudo docker images
+*)sudo docker (push shopfront)
+*)cd .. ----ls ---- cd kubernetes ----ls you see images productcatalogue-service.yaml  shopfront-service.yaml  stockmanager-service.yaml
+*)vi shopfront-service.yml (paste docker image name from hub)nagarajkhairate/shopfront1
+*)vi productcataloge yml (paste image name from docker hub)
+*)vi stockmanager yml(paste the image name from the docker hub)
+*)kubectl apply -f shofrontyml 
+*)kubectl apply -f stockmanager yml
+*)kubectl aply -f productcataloge
+*)kubectl get pods
+*)kubectl get svc
+*)
+ 
+*)
+*)
+*)

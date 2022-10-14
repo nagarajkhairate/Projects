@@ -1,0 +1,114 @@
+Installation steps for docker
+1) sudo su -
+ 
+2)yum update
+ [ install jenkins] in docker
+ 
+3)sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo 
+ 
+4)sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key 
+ 
+5)sudo amazon-linux-extras install epel -y 
+ 
+6)sudo yum install java-11* -y
+ 
+7) sudo yum install jenkins -y
+
+8)jenkins --version       
+ 
+9)service jenkins start ------- copy the public ip with port number 8080 in new tab and paste it you will get file path / password 
+ 
+10)cat /var/lib/jenkins/secrets/initialAdminPassword
+password :2dbc5effa5414940a0fbacd586ff2ab4
+
+11)Click on install suggested pulgins 
+
+12) Then you will get create first admin user name : admin / password : admin / all as admin 
+                                 Jenkins is ready start using Jenkins
+13)yum install git -y
+ 
+14)yum install docker -y
+
+15)docker --version 
+ 
+16)service docker start
+ 
+17)service docker status 
+ 
+18)useradd dockeradmin
+ 
+19)passwd dockeradmin
+ 
+20)visudo 
+    dockeradmin ALL=(ALL) NOPASSWD:  ALL
+
+21)vi /etc/ssh/sshd_config 
+     permitrootlogin  yes
+     password authentication yes
+
+ 22)service sshd restart
+ 
+23)usermod -aG docker dockeradmin
+
+                   Go to Jenkins and create one job
+
+24)Manage jenkins / manage plugins / available / publish over ssh
+ 
+25)Manage jenkins / configure system / ssh servers ( add ) / name: dockeradmin , hostname: private ip , select the check box , passphrase: 12345 , test configeration  [ apply / save ]
+
+26)Manage jenkins / global tool configuration / maven ( add Maven ) / name : MAVEN   [ apply / save ]
+
+27)New item / name: Docker / select freestyle project click on  ok 
+
+28) Source code management / git / repository URL ------> [ go to GIT HUB select ( WAR FILE <-----> URL  ) ]  / branch : */ master / build ( addd build step ) invoke top-level maven targets ---> maven version : MAVEN / goals : clean install   apply and save 
+
+29) Build now (it showing build success)
+
+30) select project   ( Docker ) /  inside docker project ( go to workpace you wil get ) target /   inside target you will get ( sampleapp.war)
+ 
+      GO TO  DOCKER TERMINALE
+31) su - dockeradmin 
+ 
+32) pwd
+ 
+33) vi Dockerfile
+
+### vi Dockerfile
+# Pull base image
+From tomcat:8-jre8
+ 
+# Maintainer
+MAINTAINER "kantharaj"
+ 
+# copy war file on to container
+COPY ./sampleapp.war /usr/local/tomcat/webapps
+ 
+ GO TO JENKINS job
+
+
+34) dashboard / configer / build ( add build step ) ---> send file or execute commands over ssh 
+      (A) transfer set ---> sourcefiles: target/sampleapp.war , remove prefix : target , remote directory : / Exec command :
+
+
+(a)Exec command
+ docker stop kantharaj; 
+docker rm -f kantharaj; 
+docker image rm -f kantharaj; 
+cd /home/dockeradmin; 
+docker build -t kantharaj . 
+(b) Click on add ssh server  
+ 
+ Exec command 
+docker run -it -d --name kantharaj -p 8090:8080 kantharaj     apply and save build now
+
+36)Copy public ip:8090/sampleapp/      you will get the sampleapp page in new tab
+
+38) docker ps  you can see the name " kantaraj “
+
+39)su – dockeradmin
+
+40)vi  Dockerfile
+ 
+41)ls
+Here you can see sampleapp.war
+

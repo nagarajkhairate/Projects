@@ -1,0 +1,78 @@
+*)W+R --- control panel --- programs and features -- hyeper-V  (enable)
+*)Docker setup 
+  -----docker desktop
+-------linux s/w
+--------windows
+--------hardware
+*)browser---kubectl---powershell admin--- commands--- open the environment variable in windows ---- give the path of the kubectl
+*)visual studio code
+*)docker desktop --- enable k8s 
+
+opnen visual studio --- write Dockerfile to pull the .net image ---- write Docker file--- .UserUrls("http://5050)
+
+git link: https://github.com/kantharajj/dotnet-project.git
+
+--------------------------------------------------------
+*)login aws launch 2 instance ---ubuntu---t2 medium---alltraffic
+*)connect both master and worker node
+*)vi abcd.sh
+# Swap memory
+swapoff -a
+
+# Install Docker
+
+sudo apt-get update
+
+sudo apt-get install -y\
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    software-properties-common
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+
+# Install Kubernetes
+sudo apt-get update && sudo apt-get install -y apt-transport-https curl
+sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+sudo apt-get update
+#sudo apt-get install -y kubelet kubeadm kubectl
+sudo apt-get install -y kubelet=1.21.1-00 kubeadm=1.21.1-00 kubectl=1.21.1-00 #--allow-change-held-packages
+sudo apt-mark hold kubelet kubeadm kubectl
+:wq
+
+*)sh abcd.sh(master node)        sh pqr.sh(worker node) same code paste and run
+
+*)sudo kubeadm init (master only)
+*) mkdir -p $HOME/.kube
+*)sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+*)sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+*)from master copy the token sudo kubeadm join 172.31.43.255:6443 --token n3qrj1.wp0iztxkwqpgupr4 \
+        --discovery-token-ca-cert-hash sha256:b09a89e364748a1355cb74da462bb91944a14f6b7ec248f85be4bd406b95d5ee paste in worker node
+*)# CNI Plugin Installation:   ---------> only in master
+kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+
+*)kubectl get nodes (master node)
+*)sudo apt install git 
+*)git clone https://github.com/kantharajj/dotnet-project.git
+*)ls ---- cd dotnetproject ---- git checkout bharath-dotnet
+*)ls --- cd src --- ls --- dockerfile and docker-compose
+*)copy-copy local resources copies add- copy the url like image 
+*)sudo docker build -t bharath . (master)
+*)sudo apt install docker-compose # version 1.29.2-1
+*)y
+*)docker-compose up  now go to web use ipv4pub:5000
+*) ls---cd..---cd kubernetes---ls---kubectl apply -f deployement.yaml --validate=false
+*)kubectl apply -f service.yaml 
+*) kubectl get svc (to see services)
+*)go to worker node see port paste ip4 public:port and paste
+

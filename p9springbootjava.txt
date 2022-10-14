@@ -1,0 +1,295 @@
+--------------Spring boot application CICD---------------
+front end ---react js
+backe end ---- java
+data base --- mongo db
+*)Jenkins-mongodb: Create one ubuntu instace for jenkins version Ubuntu Server 20.04 LTS  , instance type t2-large(2cpu 8gb ) all traffic. conect to ssh and ubuntu p8jen-mongo
+*)sudo su -
+*)apt-get update -y && apt-get upgrade -y 
+*)sudo apt install -y mongodb
+*)systemctl status mongodb
+*)mongo and give enter will go in shell script
+*)db.createCollection("web") enter it shows ok 1
+*)type show collectiions enter it shows web now ctrl c shows bye
+*)vi abc.sh
+#cd Install JAVA
+ 
+    sudo add-apt-repository ppa:openjdk-r/ppa
+    sudo apt-get update -y
+    #sudo apt-get install -y openjdk-8-jdk
+    
+    ### to install jdk 11 use below (choose to install either jdk 8 or 11 - both are not required )
+    
+    sudo apt-get install -y openjdk-11-jdk
+#Install Jenkins
+        wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
+    echo deb https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list
+    sudo apt-get update
+    sudo apt-get install jenkins -y
+#Install Maven  ( on Jenkins machine )
+    cd /tmp ; sudo wget https://downloads.apache.org/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz
+    cd /tmp ; sudo tar -xzf apache-maven-3.6.3-bin.tar.gz -C /opt
+:wq
+*)sh abc.sh
+*)service jenkins status
+*)cat /var/lib/jenkins/secrets/initialAdminPassword
+*)install suggested plugins admin admin jenkin ready
+*)apt-get install docker.io -y
+*)systemctl status docker
+*)cd /  (goto root directory)
+*)mkdir frontend ----ls---- cd frontend
+*)vi Dockerfile  (for frontend)
+FROM node
+RUN mkdir /build
+COPY app/build /build
+RUN npm install --global serve -y
+ENTRYPOINT ["serve","-s","build"]
+EXPOSE 3000
+*)chmod 777 /var/run/docker.sock
+*)ls (white color file)
+*)chmod 777 Dockerfile
+*)ls (green color)
+*)cd ..
+*)goto manage jenkins plugin instll cloudbees docker build and publish other one Node JS install without restart
+*)managee jenkins - globl tool config --Nodejs---add node js ----name (node) install automatically--version 16.17.0 -apply save
+*) 
+*)create job front end freestyle project 
+*)scm --git --paste link(https://github.com/nagarajkhairate/spring-boot-mongodb-react-crud.git)--- build environment --check provide node &npm bin/folder to PATH------build steps ---docker build and publish  
+--goto docker hub web---sign in ---goto account setting ---security---access tokens--new access token --give any name-read write delete--generate---copy the token and paste.(dckr_pat_jQ2jvc7nW5N6O-CDJaz8yxLuryw)
+
+*)jenkins build steps --docker build and publish
+repository name as nagarajkhairate/frontend-spring ---next Registry credentials ---add jenkins username from docker hub( nagarajkhairate) passwd coied token from docker hub --- add ---
+*)go to mongoodb terminal vi /etc/mongodb.conf
+*)bind ip = 0.0.0.0
+ remove the # from port :wq
+*)systemctl restart mongodb
+*)go to jenkins ip v4 pub address :27017
+*)go to jnkins build steps after registry credentials select click on advanced give the path dockerfile path (/frontend/Dockerfile) save and build now.
+*)goto jenins configure ---build steps---add build dtep--- execute shell--drag abve the docker build first execute shell past the shell command--
+npm --prefix "./app" install
+npm --prefix "./app" run build
+*)terminl docker images remove the image -- docker rmi nagarajkhairate/frontend-spring -f
+
+*)vi Dockrfile dont make app/build /build :wq build now from jenkins
+*)launch two istances for k8s ubuntu 20.04 t2 medium and connect ssh install k8s kubeadm init k8s join kubeadm 
+*)k8s master node 
+*)vi frontend-deploy.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: react
+  name: reactt
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reactt
+  template:
+    metadata:
+      labels:
+        app: reactt
+    spec:
+      containers:
+        - name: front-end
+          image: nagarajkhairate/frontend-spring/frontend
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+
+*)kubectl apply -f frontend-deploy.yml 
+*)kubectl get pods
+*)vi frontend-seice.yml
+*)kubectl apply frontendservice.yml -f
+*)changes the github code paste ipv4 address and commit changes
+
+*) kubectl delete -f frontend-deploy.yml
+*)kubectl delete -f frontend-serice.yml
+
+mongodb terminal
+*)mkdir backend
+*)cd backend
+*)vi Dockerfile
+FROM maven:3.8.6-jdk-11
+RUN mkdir abc
+COPY ./web /abc
+WORKDIR /abc
+RUN ["mvn","package"]
+ENTRYPOINT ["mvn","spring-boot:run"]
+EXPOSE 8080
+
+:wq
+*)chmod 777 Dockerfie
+*)ls
+jenkins build for back end dashboard 
+new item backend  freestyle  git link scm
+docker build over shh 
+
+vi backend-deploy.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: be
+  name: be
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: be
+  template:
+    metadata:
+      labels:
+        app: be
+    spec:
+      containers:
+        - name: back-end
+          image: anshuman123abc/backend
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+
+:wq
+vi backend-service.yml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: back-end
+  labels:
+    app: back-end
+spec:
+  selector:
+    app: be
+  ports:
+  - port: 8081
+    targetPort: 8080
+    nodePort: 31111
+  type: NodePort
+:wq
+backend Dockerfile
+vi Dockerfile...
+
+FROM maven:3.8.6-jdk-11
+RUN mkdir abc
+COPY ./web /abc
+WORKDIR /abc
+RUN ["mvn","package"]
+ENTRYPOINT ["mvn","spring-boot:run"]
+EXPOSE 8080
+:wq
+
+vi frontend-service.yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: react-serv
+  labels:
+    app: react-serv
+spec:
+  selector:
+    app: reactt
+  ports:
+  - port: 3010
+    targetPort: 3000
+    nodePort: 31515
+  type: NodePort
+:wq
+
+vi frontend-deploy.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: react
+  name: reactt
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reactt
+  template:
+    metadata:
+      labels:
+        app: reactt
+    spec:
+      containers:
+        - name: front-end
+          image: anshuman123abc/frontend
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+:wq
+
+Kubernetes master and worker node
+dont do sudo su work in ubuntu user only
+vi abcd.sh
+# Swap memory
+swapoff -a
+# Install Docker
+sudo apt-get update
+sudo apt-get install -y\
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+# Install Kubernetes
+sudo apt-get update && sudo apt-get install -y apt-transport-https curl
+sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+sudo apt-get update
+#sudo apt-get install -y kubelet kubeadm kubectl
+sudo apt-get install -y kubelet=1.21.1-00 kubeadm=1.21.1-00 kubectl=1.21.1-00 #--allow-change-held-packages
+sudo apt-mark hold kubelet kubeadm kubectl
+:wq
+### run
+sh abcd.sh
+##after this run
+sudo kubeadm init
+#then
+exit
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+# CNI Plugin Installation:
+kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+
+
+Frontend Dockerfile
+vi Dockerfile
+FROM node
+RUN mkdir /build
+COPY app/build /build
+RUN npm install --global serve -y
+ENTRYPOINT ["serve","-s","build"]
+EXPOSE 3000
+
+:wq
+
+
+
+
+Jenkins installation for 
+#cd Install JAVA
+ 
+    sudo add-apt-repository ppa:openjdk-r/ppa
+    sudo apt-get update -y
+    #sudo apt-get install -y openjdk-8-jdk
+    
+    ### to install jdk 11 use below (choose to install either jdk 8 or 11 - both are not required )
+    
+    sudo apt-get install -y openjdk-11-jdk
+#Install Jenkins
+        wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
+    echo deb https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list
+    sudo apt-get update
+    sudo apt-get install jenkins -y
+#Install Maven  ( on Jenkins machine )
+    cd /tmp ; sudo wget https://downloads.apache.org/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz
+    cd /tmp ; sudo tar -xzf apache-maven-3.6.3-bin.tar.gz -C /opt

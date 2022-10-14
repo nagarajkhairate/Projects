@@ -1,0 +1,86 @@
+https://github.com/anshumanhota1/samplejavaapp.git
+
+
+---------------------------------------
+Create one instance for jenkins and do below operations
+Installation of jenkins
+==================================================
+sudo su -
+
+sudo yum update -y
+
+sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
+
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+
+sudo amazon-linux-extras install epel -y
+
+sudo yum install java-11* -y
+
+sudo yum install jenkins -y
+
+service jenkins status
+
+service jenkins start
+
+service jenkins status
+yum install git -y
+cat /var/lib/jenkins/secrets/initialAdminPassword
+--------------------------------------------------------
+
+
+Tomcat installation  -- do the below steps
+-------------------------------------------------------
+
+sudo su -
+
+sudo yum update -y
+
+wget https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.82/bin/apache-tomcat-8.5.82.tar.gz
+
+  ls
+
+  tar -xvf apache-tomcat-8.5.82.tar.gz
+
+   Ls
+
+   cd apache-tomcat-8.5.82
+    ls -ltr
+   cd bin
+     ls
+     ./startup.sh
+     sudo yum install java-11* -y
+  ./startup.sh
+
+Copy the public ip of ec2 instance tomcat n paste it in google :8080
+
+Cd ..
+Cd conf/
+Ls
+  19  ./startup.sh
+   20  cd ..
+   21  cd conf/
+   22  ls
+   23  vi tomcat-users.xml                --> atlast line no 57 add this content
+
+<role rolename="manager-gui"/>
+<role rolename="manager-script"/>
+<role rolename="manager-jmx"/>
+<role rolename="manager-status"/>
+<user username="admin" password="admin" roles="manager-gui, manager-script, manager-jmx, manager-status"/>
+------------------------------------------
+   24  cd ..
+   25  cd bin
+   26  ./shutdown.sh
+   27  ./startup.sh
+   28  cd ..
+   29  ls
+   30  cd webapps/
+   31  ls
+   32  cd manager/
+   33  ls
+   34  cd META-INF/                           -comment cookies part  <!--              -->   from 19-22
+
+Go to browser and refresh the page n go to manager tab n provide username: admin , passwd: admin
+N see it.
+
